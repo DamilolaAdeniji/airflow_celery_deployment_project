@@ -26,7 +26,7 @@ resource "aws_subnet" "private" {
     }
 }
 
-resource "aws_subnet" "private_AZ2" {
+resource "aws_subnet" "private-AZ2" {
     vpc_id            = aws_vpc.main.id
     cidr_block        = "10.0.0.32/28"
     availability_zone = "us-west-1b"
@@ -36,7 +36,7 @@ resource "aws_subnet" "private_AZ2" {
     }
 }
 
-resource "aws_subnet" "public_AZ2" {
+resource "aws_subnet" "public-AZ2" {
     vpc_id            = aws_vpc.main.id
     cidr_block        = "10.0.0.48/28"
     availability_zone = "us-west-1b"
