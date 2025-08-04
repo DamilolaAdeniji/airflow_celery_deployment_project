@@ -46,8 +46,10 @@ jobs:
           uses: fjogeleit/yaml-update-action@v0.14.0
           with:
             valueFile: 'my-config.yaml'
-            propertyPath: 'version'    # Key to update
+            propertyPath: 'app.version'    # Key to update
             value: '1.0.1'             # New value
             commitChange: true
             branch: main
+            masterBranchName: main
+
             message: 'chore: update YAML [skip ci]'              
