@@ -35,3 +35,19 @@ jobs:
             - name: Terraform Validate
               run: terraform validate
               working-directory: terraform
+    yaml-update:
+      runs-on: ubuntu-latest
+      needs: terraform
+      if: github.ref == 'refs/heads/main' # Only run on main
+      steps:
+        - uses: actions/checkout@v3
+
+        - name: Update YAML
+          uses: fjogeleit/yaml-update-action@v0.14.0
+          with:
+            valueFile: 'my-config.yaml'
+            propertyPath: 'version'    # Key to update
+            value: '1.0.1'             # New value
+            commitChange: true
+            branch: main
+            message: 'chore: update YAML [skip ci]'              
