@@ -47,7 +47,7 @@ jobs:
           with:
             valueFile: 'my-config.yaml'
             propertyPath: 'app.version'    # Key to update
-            value: '1.0.1'             # New value
+            value: ${{ github.sha }}
             commitChange: true
             branch: main
             masterBranchName: main
