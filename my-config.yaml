@@ -1,0 +1,15 @@
+app:
+  name: airflow-metadata-service
+  version: 0.9.0
+  environment: development
+
+database:
+  host: localhost
+  port: 5432
+  name: airflow_metadata
+  user: admin
+  password: changeme
+
+features:
+  enable_metrics: true
+  enable_backup: false
