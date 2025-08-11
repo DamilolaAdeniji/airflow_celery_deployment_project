@@ -15,3 +15,18 @@ variable "db_name" {
   type        = string
   default     = "mydatabase"
 }
+
+variable "region" {
+  type    = string
+  default = "eu-north-1"
+}
+
+variable "instance_type" {
+  type    = string
+  default = "t3.micro"
+}
+
+variable "name" {
+  type    = string
+  default = "single-instance"
+}
