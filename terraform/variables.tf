@@ -30,3 +30,8 @@ variable "name" {
   type    = string
   default = "single-instance"
 }
+
+variable "my_ip_address" {
+  description = "Your IP address in CIDR notation (e.g., 162.112.188.117/32)"
+  type        = string
+}

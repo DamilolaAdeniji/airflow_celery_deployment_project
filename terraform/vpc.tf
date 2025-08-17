@@ -9,7 +9,7 @@ resource "aws_vpc" "main" {
 resource "aws_subnet" "public" {
   vpc_id            = aws_vpc.main.id
   cidr_block        = "10.0.0.0/28"
-  availability_zone = "us-west-1a"
+  availability_zone = "eu-north-1a"
   tags = {
     Name        = "dami-celery-project-public-subnet"
     Environment = "development"
@@ -19,17 +19,37 @@ resource "aws_subnet" "public" {
 resource "aws_subnet" "private" {
   vpc_id            = aws_vpc.main.id
   cidr_block        = "10.0.0.16/28"
-  availability_zone = "us-west-1a"
+  availability_zone = "eu-north-1a"
   tags = {
     Name        = "dami-celery-project-private-subnet"
     Environment = "development"
   }
 }
 
-resource "aws_subnet" "private_AZ2" {
+resource "aws_subnet" "private_AZ1" {
   vpc_id            = aws_vpc.main.id
   cidr_block        = "10.0.0.32/28"
-  availability_zone = "us-west-1b"
+  availability_zone = "eu-north-1b"
+  tags = {
+    Name        = "dami-celery-project-private-subnet-AZ1"
+    Environment = "development"
+  }
+}
+
+resource "aws_subnet" "public_AZ1" {
+  vpc_id            = aws_vpc.main.id
+  cidr_block        = "10.0.0.48/28"
+  availability_zone = "eu-north-1b"
+  tags = {
+    Name        = "dami-celery-project-public-subnet-AZ1"
+    Environment = "development"
+  }
+}
+
+resource "aws_subnet" "private_AZ2" {
+  vpc_id            = aws_vpc.main.id
+  cidr_block        = "10.0.0.64/28"
+  availability_zone = "eu-north-1c"
   tags = {
     Name        = "dami-celery-project-private-subnet-AZ2"
     Environment = "development"
@@ -38,13 +58,14 @@ resource "aws_subnet" "private_AZ2" {
 
 resource "aws_subnet" "public_AZ2" {
   vpc_id            = aws_vpc.main.id
-  cidr_block        = "10.0.0.48/28"
-  availability_zone = "us-west-1b"
+  cidr_block        = "10.0.0.80/28"
+  availability_zone = "eu-north-1c"
   tags = {
     Name        = "dami-celery-project-public-subnet-AZ2"
     Environment = "development"
   }
 }
+
 
 resource "aws_internet_gateway" "main" {
   vpc_id = aws_vpc.main.id

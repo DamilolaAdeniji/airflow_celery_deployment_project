@@ -1,6 +1,8 @@
 resource "aws_db_subnet_group" "rds_subnets" {
-  name       = "rds-subnet-group"
-  subnet_ids = [aws_subnet.private.id] # subnet from vpc.tf
+  name = "rds-subnet-group"
+  subnet_ids = [aws_subnet.private.id,
+    aws_subnet.private_AZ1.id,
+  aws_subnet.private_AZ2.id] # subnet from vpc.tf
 
   tags = {
     Name = "rds-subnet-group"
@@ -31,9 +33,10 @@ resource "aws_security_group" "rds_sg" {
 
 resource "aws_db_instance" "airflow_metadata_db" {
   allocated_storage      = 20
-  storage_type           = "gp2"
+  storage_type           = "gp3"
+  max_allocated_storage  = 20
   engine                 = "postgres"
-  engine_version         = "13.3"
+  engine_version         = "17.4"
   instance_class         = "db.t3.micro"
   db_subnet_group_name   = aws_db_subnet_group.rds_subnets.name
   vpc_security_group_ids = [aws_security_group.rds_sg.id]

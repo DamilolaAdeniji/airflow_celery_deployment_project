@@ -7,7 +7,7 @@ resource "aws_security_group" "ec2_ssh" {
     from_port   = 22
     to_port     = 22
     protocol    = "tcp"
-    cidr_blocks = ["MY.IP.ADDR.0/32"] # TODO: tighten this!
+    cidr_blocks = [var.my_ip_address]
   }
 
   egress {
@@ -29,8 +29,9 @@ module "ec2_instance" {
   version = "~> 5.0"
 
   name                        = "celery-worker-1"
-  ami                         = "ami-0742eb7300e2d407c" # Ubuntu 22.04 LTS
+  ami                         = "ami-042b4708b1d05f512" # Ubuntu 22.04 LTS
   instance_type               = "t3.micro"
+  iam_instance_profile        = aws_iam_instance_profile.ec2_ssm_profile.name
   key_name                    = "celery-worker-1"
   subnet_id                   = aws_subnet.public.id
   vpc_security_group_ids      = [aws_security_group.ec2_ssh.id]
