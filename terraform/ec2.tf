@@ -37,7 +37,18 @@ module "ec2_instance" {
   vpc_security_group_ids      = [aws_security_group.ec2_ssh.id]
   associate_public_ip_address = true
   monitoring                  = true
+  user_data                   = <<-EOF
+    #!/bin/bash
+      wget https://s3.amazonaws.com/ec2-downloads-REGION/SSMAgent/latest/debian_amd64/amazon-ssm-agent.deb
+      sudo dpkg -i amazon-ssm-agent.deb
+      sudo systemctl status amazon-ssm-agent
 
+      set -euxo pipefail
+      apt-get update
+      apt-get install -y docker.io docker-compose-plugin
+      systemctl enable --now docker
+      usermod -aG docker ubuntu
+EOF
   tags = {
     Terraform   = "true"
     Environment = "Dev"
