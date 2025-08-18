@@ -45,7 +45,7 @@ module "ec2_instance" {
 
       set -euxo pipefail
       apt-get update
-      apt-get install -y docker.io docker-compose-plugin
+      sudo snap install docker 
       systemctl enable --now docker
       usermod -aG docker ubuntu
 EOF

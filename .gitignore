@@ -77,3 +77,6 @@ Thumbs.db
 # Secrets (if applicable)
 *.env
 .envrc
+
+
+*.pem
