@@ -49,6 +49,7 @@ module "ec2_instance" {
       systemctl enable --now docker
       usermod -aG docker ubuntu
 EOF
+  user_data_replace_on_change = true
   tags = {
     Terraform   = "true"
     Environment = "Dev"
