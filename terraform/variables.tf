@@ -15,3 +15,23 @@ variable "db_name" {
   type        = string
   default     = "mydatabase"
 }
+
+variable "region" {
+  type    = string
+  default = "eu-north-1"
+}
+
+variable "instance_type" {
+  type    = string
+  default = "t3.micro"
+}
+
+variable "name" {
+  type    = string
+  default = "single-instance"
+}
+
+variable "my_ip_address" {
+  description = "Your IP address in CIDR notation (e.g., 162.112.188.117/32)"
+  type        = string
+}
