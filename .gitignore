@@ -80,3 +80,14 @@ Thumbs.db
 
 
 *.pem
+
+# airflow
+airflow.cfg
+airflow.db
+airflow-webserver.pid
+airflow-scheduler.pid
+airflow-worker.pid
+airflow-celery.pid
+airflow-initdb.lock
+airflow-migrations.lock
+airflow/logs/
