@@ -1,8 +1,8 @@
 resource "aws_db_subnet_group" "rds_subnets" {
   name = "rds-subnet-group"
-  subnet_ids = [aws_subnet.private.id,
-    aws_subnet.private_AZ1.id,
-  aws_subnet.private_AZ2.id] # subnet from vpc.tf
+  subnet_ids = [aws_subnet.public.id,
+    aws_subnet.public_AZ1.id,
+  aws_subnet.public_AZ2.id] # subnet from vpc.tf
 
   tags = {
     Name = "rds-subnet-group"
@@ -15,11 +15,11 @@ resource "aws_security_group" "rds_sg" {
 
   # INGRESS = who can connect to the DB
   ingress {
-    description = "Allow MySQL from App Subnet"
-    from_port   = 3306
-    to_port     = 3306
+    description = "Allow connection from my IP address"
+    from_port   = 5432
+    to_port     = 5432
     protocol    = "tcp"
-    cidr_blocks = ["10.0.0.0/24"] # TODO: use the SG of the EC2s here
+    cidr_blocks = [var.my_ip_address]
   }
   # EGRESS = who can connect from the DB
   egress {
@@ -44,4 +44,5 @@ resource "aws_db_instance" "airflow_metadata_db" {
   password               = var.db_password
   db_name                = var.db_name
   skip_final_snapshot    = true
+  publicly_accessible    = true
 }
