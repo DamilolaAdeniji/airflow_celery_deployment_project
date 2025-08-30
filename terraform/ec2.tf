@@ -45,8 +45,10 @@ module "ec2_instance" {
 
       apt-get update
       sudo snap install docker 
-      systemctl enable --now docker
-      usermod -aG docker ubuntu
+      sudo systemctl enable --now docker
+      sudo usermod -aG docker ubuntu
+
+      git clone https://github.com/DamilolaAdeniji/airflow_celery_deployment_project.git
 EOF
   user_data_replace_on_change = true
   tags = {
@@ -76,8 +78,10 @@ module "ec2_instance_redis" {
 
       apt-get update
       sudo snap install docker 
-      systemctl enable --now docker
-      usermod -aG docker ubuntu
+      sudo systemctl enable --now docker
+      sudo usermod -aG docker ubuntu
+
+      git clone https://github.com/DamilolaAdeniji/airflow_celery_deployment_project.git
 EOF
   user_data_replace_on_change = true
   tags = {
