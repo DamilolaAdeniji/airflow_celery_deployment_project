@@ -24,6 +24,33 @@ resource "aws_security_group" "ec2_ssh" {
 }
 
 
+resource "aws_security_group" "redis_ec2_tcp" {
+  name        = "redis_ec2_tcp"
+  description = "Allow TCP"
+  vpc_id      = aws_vpc.main.id
+
+  ingress {
+    from_port   = 6379
+    to_port     = 6379
+    protocol    = "tcp"
+    cidr_blocks = [var.my_ip_address]
+  }
+
+  egress {
+    from_port        = 0
+    to_port          = 0
+    protocol         = "-1"
+    cidr_blocks      = ["0.0.0.0/0"]
+    ipv6_cidr_blocks = ["::/0"]
+  }
+
+  tags = {
+    Name = "redis-ec2-tcp"
+  }
+}
+
+
+
 module "ec2_instance" {
   source  = "terraform-aws-modules/ec2-instance/aws"
   version = "~> 5.0"
@@ -48,6 +75,7 @@ module "ec2_instance" {
       sudo systemctl enable --now docker
       sudo usermod -aG docker ubuntu
 
+      cd /home/ubuntu
       git clone https://github.com/DamilolaAdeniji/airflow_celery_deployment_project.git
 EOF
   user_data_replace_on_change = true
@@ -67,7 +95,7 @@ module "ec2_instance_redis" {
   iam_instance_profile        = aws_iam_instance_profile.ec2_ssm_profile.name
   key_name                    = "celery-worker-1"
   subnet_id                   = aws_subnet.public.id
-  vpc_security_group_ids      = [aws_security_group.ec2_ssh.id]
+  vpc_security_group_ids      = [aws_security_group.redis_ec2_tcp.id]
   associate_public_ip_address = true
   monitoring                  = true
   user_data                   = <<-EOF
@@ -81,6 +109,7 @@ module "ec2_instance_redis" {
       sudo systemctl enable --now docker
       sudo usermod -aG docker ubuntu
 
+      cd /home/ubuntu
       git clone https://github.com/DamilolaAdeniji/airflow_celery_deployment_project.git
 EOF
   user_data_replace_on_change = true
