@@ -10,6 +10,11 @@ resource "aws_iam_role" "ec2_ssm_role" {
         Service = "ec2.amazonaws.com"
       },
       Action = "sts:AssumeRole"
+      },
+      {
+        Effect   = "Allow",
+        Action   = "ssm:GetParametersByPath",
+        Resource = "arn:aws:ssm:eu-north-1:340752803932:parameter/dami_celery_project/*"
     }]
   })
 }
