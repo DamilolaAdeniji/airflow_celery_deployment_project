@@ -61,3 +61,22 @@ terraform apply
 ```bash
 bash load_env_variables.sh
 ```
+
+
+## Repository Structure
+```
+.
+├── airflow/                 # Airflow setup
+│   ├── dags/                # DAGs (pipelines)
+│   ├── docker-compose.yaml  # Airflow & backend services
+│   ├── Dockerfile           # Custom Airflow image
+│   └── load_env_variables.sh
+├── terraform/               # Terraform IaC for AWS
+│   ├── ec2.tf               # EC2 instances
+│   ├── iam.tf               # IAM roles & policies
+│   ├── rds.tf               # RDS PostgreSQL
+│   ├── vpc.tf               # VPC & subnets
+│   ├── ssm.tf               # SSM parameters
+│   └── s3.tf                # S3 bucket for logs
+└── README.md
+```
