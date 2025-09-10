@@ -95,7 +95,7 @@ module "ec2_instance_redis" {
   iam_instance_profile        = aws_iam_instance_profile.ec2_ssm_profile.name
   key_name                    = "celery-worker-1"
   subnet_id                   = aws_subnet.public.id
-  vpc_security_group_ids      = [aws_security_group.redis_ec2_tcp.id]
+  vpc_security_group_ids      = [aws_security_group.redis_ec2_tcp.id, aws_security_group.ec2_ssh.id]
   associate_public_ip_address = true
   monitoring                  = true
   user_data                   = <<-EOF
