@@ -1,6 +1,6 @@
 app:
   name: airflow-metadata-service
-  version: 349f83860e7baa555ddcd60adda37c90e7379842
+  version: a0f46b794ffcafeabda4f2d2d1e6cd7a930a8bcd
   environment: development
 database:
   host: localhost
