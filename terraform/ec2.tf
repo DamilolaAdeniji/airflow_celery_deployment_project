@@ -70,24 +70,13 @@ module "ec2_instance" {
       sudo snap install docker 
       sudo systemctl enable --now docker
       sudo usermod -aG docker ubuntu
-      sudo apt install -y awscli jq
-      
+      sudo snap install aws-cli --classic
       cd /home/ubuntu
       git clone https://github.com/DamilolaAdeniji/airflow_celery_deployment_project.git
       cd airflow_celery_deployment_project/airflow
+      sudo touch .env
 
-      SSM_PATH="/dami_celery/project/"
-
-      eval "$(
-        aws ssm get-parameters-by-path \
-          --path "$SSM_PATH" \
-          --with-decryption \
-          --recursive \
-          --output json \
-          --query 'Parameters[].{Name:Name,Value:Value}' \
-        | jq -r '.[] | "export \(.Name|split("/")[-1])=\(.Value|@sh)"'
-      )"      
-
+      chmod +x load_env_variables.sh
 EOF
   user_data_replace_on_change = true
   tags = {
@@ -111,17 +100,17 @@ module "ec2_instance_redis" {
   monitoring                  = true
   user_data                   = <<-EOF
     #!/bin/bash
-      wget https://s3.amazonaws.com/ec2-downloads-REGION/SSMAgent/latest/debian_amd64/amazon-ssm-agent.deb
-      sudo dpkg -i amazon-ssm-agent.deb
-      sudo systemctl status amazon-ssm-agent
-
       apt-get update
       sudo snap install docker 
       sudo systemctl enable --now docker
       sudo usermod -aG docker ubuntu
-
+      sudo snap install aws-cli --classic
       cd /home/ubuntu
       git clone https://github.com/DamilolaAdeniji/airflow_celery_deployment_project.git
+      cd airflow_celery_deployment_project/airflow
+      sudo touch .env
+
+      chmod +x load_env_variables.sh
 EOF
   user_data_replace_on_change = true
   tags = {
