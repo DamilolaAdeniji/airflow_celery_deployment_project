@@ -24,14 +24,16 @@ resource "aws_iam_role_policy" "ssm_policy" {
     Version = "2012-10-17",
     Statement = [
       {
-        Effect   = "Allow",
-        Action   = "ssm:GetParametersByPath",
-        Resource = "arn:aws:ssm:eu-north-1:340752803932:parameter/dami_celery/project/*"
+        Effect = "Allow",
+        Action = ["ssm:GetParametersByPath",
+          "ssm:GetParameter",
+        "ssm:GetParameters"],
+        Resource = "arn:aws:ssm:eu-north-1:340752803932:parameter/dami_celery/*"
       },
       {
         Effect   = "Allow",
         Action   = "ssm:PutParameter",
-        Resource = "arn:aws:ssm:eu-north-1:340752803932:parameter/dami_celery/project/*"
+        Resource = "arn:aws:ssm:eu-north-1:340752803932:parameter/dami_celery/*"
       }
     ]
   })
