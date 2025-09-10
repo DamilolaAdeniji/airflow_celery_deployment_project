@@ -4,18 +4,36 @@ resource "aws_iam_role" "ec2_ssm_role" {
 
   assume_role_policy = jsonencode({
     Version = "2012-10-17",
-    Statement = [{
-      Effect = "Allow",
-      Principal = {
-        Service = "ec2.amazonaws.com"
-      },
-      Action = "sts:AssumeRole"
-      },
+    Statement = [
+      {
+        Effect = "Allow",
+        Principal = {
+          Service = "ec2.amazonaws.com"
+        },
+        Action = "sts:AssumeRole"
+      }
+    ]
+  })
+}
+
+resource "aws_iam_role_policy" "ssm_policy" {
+  name = "ec2-ssm-policy"
+  role = aws_iam_role.ec2_ssm_role.id
+
+  policy = jsonencode({
+    Version = "2012-10-17",
+    Statement = [
       {
         Effect   = "Allow",
         Action   = "ssm:GetParametersByPath",
-        Resource = "arn:aws:ssm:eu-north-1:340752803932:parameter/dami_celery_project/*"
-    }]
+        Resource = "arn:aws:ssm:eu-north-1:340752803932:parameter/dami_celery/project/*"
+      },
+      {
+        Effect   = "Allow",
+        Action   = "ssm:PutParameter",
+        Resource = "arn:aws:ssm:eu-north-1:340752803932:parameter/dami_celery/project/*"
+      }
+    ]
   })
 }
 
