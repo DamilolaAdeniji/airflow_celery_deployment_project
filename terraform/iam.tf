@@ -26,21 +26,15 @@ resource "aws_iam_role_policy" "ssm_policy" {
       {
         Effect   = "Allow",
         Action   = "ssm:GetParametersByPath",
-        Resource = "arn:aws:ssm:eu-north-1:340752803932:parameter/dami_celery_project/*"
+        Resource = "arn:aws:ssm:eu-north-1:340752803932:parameter/dami_celery/project/*"
       },
       {
         Effect   = "Allow",
         Action   = "ssm:PutParameter",
-        Resource = "arn:aws:ssm:eu-north-1:340752803932:parameter/dami_celery_project/*"
+        Resource = "arn:aws:ssm:eu-north-1:340752803932:parameter/dami_celery/project/*"
       }
     ]
   })
-}
-
-
-resource "aws_iam_role_policy_attachment" "ec2_ssm_attach" {
-  role       = aws_iam_role.ec2_ssm_role.name
-  policy_arn = aws_iam_role_policy.ssm_policy.arn
 }
 
 # Attach the SSM managed policy to the role
