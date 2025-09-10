@@ -10,8 +10,8 @@ resource "aws_ssm_parameter" "AIRFLOW__DATABASE__SQL_ALCHEMY_CONN" {
   value = "postgresql+psycopg2://${aws_db_instance.airflow_metadata_db.username}:${aws_db_instance.airflow_metadata_db.password}@${aws_db_instance.airflow_metadata_db.endpoint}/${aws_db_instance.airflow_metadata_db.db_name}"
 }
 
-resource "aws_ssm_parameter" "CELERY_RESULTS_BACKEND" {
-  name  = "/dami_celery/project/CELERY_RESULTS_BACKEND"
+resource "aws_ssm_parameter" "AIRFLOW__CELERY__RESULT_BACKEND" {
+  name  = "/dami_celery/project/AIRFLOW__CELERY__RESULT_BACKEND"
   type  = "SecureString"
   value = "db+postgresql://${aws_db_instance.airflow_metadata_db.username}:${aws_db_instance.airflow_metadata_db.password}@${aws_db_instance.airflow_metadata_db.endpoint}/${aws_db_instance.airflow_metadata_db.db_name}"
 }
