@@ -64,7 +64,7 @@ bash load_env_variables.sh
 
 
 ## Repository Structure
-
+```
 .
 ├── airflow/                 # Airflow setup
 │   ├── dags/                # DAGs (pipelines)
@@ -79,3 +79,4 @@ bash load_env_variables.sh
 │   ├── ssm.tf               # SSM parameters
 │   └── s3.tf                # S3 bucket for logs
 └── README.md
+```
