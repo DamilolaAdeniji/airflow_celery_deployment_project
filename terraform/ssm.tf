@@ -1,7 +1,7 @@
 resource "aws_ssm_parameter" "AIRFLOW__CELERY__BROKER_URL" {
   name  = "/dami_celery_project/AIRFLOW__CELERY__BROKER_URL"
   type  = "String"
-  value =  "redis://:@${module.ec2_instance_redis.public_ip}:6379/0"
+  value = "redis://:@${module.ec2_instance_redis.public_ip}:6379/0"
 }
 
 resource "aws_ssm_parameter" "AIRFLOW__DATABASE__SQL_ALCHEMY_CONN" {
