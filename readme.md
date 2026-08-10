@@ -161,4 +161,3 @@ docker compose exec airflow-worker   celery --app airflow.providers.celery.execu
 docker compose ps
 ```
 
-A portfolio screenshot should show the completed DAG Grid or Graph view with all three tasks in the successful state. A genuine runtime screenshot is intentionally not included until it can be captured from a verified deployment.
