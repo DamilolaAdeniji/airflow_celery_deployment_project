@@ -57,7 +57,7 @@ flowchart TB
 
 ### Redis implementation
 
-Redis is **not** provisioned as Amazon ElastiCache. Terraform creates a dedicated EC2 instance for the broker and writes that instance's address into the Airflow broker URL stored in SSM. The actual Redis service is the `redis:7.2-bookworm` container declared in `airflow/docker-compose.yaml`.
+Terraform creates a dedicated EC2 instance for the Redis broker and writes that instance's address into the Airflow broker URL stored in SSM. Docker Compose runs and manages the `redis:7.2-bookworm` container on that host.
 
 This separation is intentional:
 
