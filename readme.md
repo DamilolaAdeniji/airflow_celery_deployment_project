@@ -2,53 +2,106 @@
 
 ## Overview
 
-This repository contains everything you need to deploy an Apache Airflow environment using the **Celery executor** on AWS EC2 instances.  
-The environment uses Docker containers for all Airflow services (webserver, scheduler, worker, triggerer, and initialization service) and uses Terraform to provision the required AWS infrastructure. Each Airflow component runs in its own Docker container and can be scaled horizontally across EC2 instances.
+This project demonstrates a distributed Apache Airflow development environment on AWS using **CeleryExecutor**, Docker Compose, and Terraform.
 
-- **Base image:** `apache/airflow:2.10.5`  
-- **Executor:** CeleryExecutor  
-- **Backend services:** PostgreSQL (metadata DB), Redis (message broker), S3 (logs storage)  
-- **Infra provisioning:** Terraform (EC2, VPC, RDS, IAM, SSM, S3)  
+Terraform provisions the AWS infrastructure, while Docker Compose defines the Airflow and Redis containers that run on the provisioned EC2 hosts. Airflow uses Amazon RDS for metadata and Celery results, Redis as its task broker, AWS Systems Manager Parameter Store for connection settings, and Amazon S3 as the intended remote-log store.
 
----
+> **Scope:** This repository is a development/reference deployment. The Docker Compose configuration is based on Airflow's development setup and requires additional hardening before production use.
+
+- **Airflow image:** `apache/airflow:2.10.5`
+- **Executor:** `CeleryExecutor`
+- **Metadata database and result backend:** Amazon RDS for PostgreSQL
+- **Message broker:** Redis 7.2 running in Docker on a dedicated EC2 host
+- **Infrastructure as code:** Terraform
+- **Configuration storage:** AWS Systems Manager Parameter Store
 
 ## Architecture
 
-- **Terraform** provisions:
-  - VPC with public & private subnets across 3 availability zones.
-  - EC2 instances (Ubuntu 22.04) hosting Airflow components in Docker containers.
-  - RDS PostgreSQL for Airflow metadata.
-  - Elastic IPs and security groups.
-  - S3 bucket for Airflow logs.
-  - IAM roles with SSM Parameter Store access for secrets/configs.
+```mermaid
+flowchart TB
+    User["User"] --> Web["Airflow webserver"]
 
-- **Docker Compose** defines:
-  - Airflow services: `webserver`, `scheduler`, `worker`, `triggerer`, `init`.
-  - Backend services: `postgres`, `redis`.
-  - Volumes for logs and DAGs.
-  - Environment variables mapped from AWS SSM.
+    subgraph AirflowHost["Airflow EC2 host"]
+        Web
+        Scheduler["Scheduler"]
+        Worker["Celery worker"]
+        Triggerer["Triggerer"]
+    end
 
----
+    subgraph RedisHost["Redis EC2 host"]
+        Redis["Redis container<br/>Celery broker"]
+    end
+
+    RDS["Amazon RDS PostgreSQL<br/>metadata + result backend"]
+    SSM["AWS Systems Manager<br/>connection settings"]
+    S3["Amazon S3<br/>log bucket"]
+
+    Scheduler --> Redis
+    Redis --> Worker
+    Web --> RDS
+    Scheduler --> RDS
+    Worker --> RDS
+    AirflowHost --> SSM
+    Worker -. logs .-> S3
+```
+
+### Provisioning and runtime responsibilities
+
+| Layer | Responsibility |
+|---|---|
+| Terraform | Creates the VPC and subnets, two EC2 instances, RDS PostgreSQL, security groups, IAM/instance-profile resources, SSM parameters, and an S3 bucket. |
+| Airflow EC2 host | Runs the Airflow webserver, scheduler, Celery worker, triggerer, and initialization containers defined by Docker Compose. |
+| Redis EC2 host | Hosts the Redis Docker container used as the Celery message broker. |
+| Amazon RDS | Stores Airflow metadata and Celery task results. |
+| AWS SSM Parameter Store | Stores the broker URL, SQLAlchemy connection string, and Celery result-backend connection string. |
+
+### Redis implementation
+
+Redis is **not** provisioned as Amazon ElastiCache. Terraform creates a dedicated EC2 instance for the broker and writes that instance's address into the Airflow broker URL stored in SSM. The actual Redis service is the `redis:7.2-bookworm` container declared in `airflow/docker-compose.yaml`.
+
+This separation is intentional:
+
+1. Terraform provisions the host and network resources.
+2. Docker Compose starts and manages the Redis process on that host.
+3. Airflow workers retrieve the broker connection details from SSM.
+
+## Repository Structure
+
+```text
+.
+├── airflow/
+│   ├── dags/                 # Example Airflow DAGs
+│   ├── docker-compose.yaml   # Airflow and Redis services
+│   ├── Dockerfile            # Custom Airflow image
+│   └── load_env_variables.sh # Loads configuration from SSM
+├── terraform/
+│   ├── ec2.tf                # Airflow and Redis EC2 hosts
+│   ├── iam.tf                # IAM roles and policies
+│   ├── rds.tf                # PostgreSQL metadata database
+│   ├── vpc.tf                # VPC, subnets, routes, and gateway
+│   ├── ssm.tf                # Airflow connection parameters
+│   └── s3.tf                 # Airflow log bucket
+└── readme.md
+```
 
 ## Prerequisites
 
-- Terraform >= 1.5  
-- AWS CLI configured with sufficient privileges  
-- Docker & Docker Compose installed on EC2 instances  
-- Python >= 3.10 (if running locally for testing)
+- Terraform 1.5 or later
+- An AWS account and AWS CLI credentials with the required permissions
+- Docker and Docker Compose on the target EC2 hosts
+- Python 3.10 or later for local testing
 
----
+## Deployment
 
-## Setup Instructions
-
-### 1. Clone the Repository
+### 1. Clone the repository
 
 ```bash
 git clone https://github.com/DamilolaAdeniji/airflow_celery_deployment_project.git
 cd airflow_celery_deployment_project
 ```
-### 2. Provision Infrastructure with Terraform
-- This step provisions the VPC, EC2 instances, RDS PostgreSQL, Redis, IAM roles, and S3 buckets.
+
+### 2. Provision the AWS infrastructure
+
 ```bash
 cd terraform
 terraform init
@@ -56,27 +109,56 @@ terraform plan
 terraform apply
 ```
 
-### 3. Load Environment Variables
-- Secrets and connection strings are stored in AWS SSM Parameter Store. Use the helper script to fetch and write them into an .env file:
+This creates the AWS networking, Airflow and Redis EC2 hosts, RDS PostgreSQL instance, IAM resources, SSM parameters, security groups, and S3 bucket. Terraform creates the Redis **host**; Docker Compose starts the Redis **service**.
+
+### 3. Load Airflow configuration
+
+On the Airflow EC2 host, move into the Airflow directory and load the values stored in SSM:
+
 ```bash
-bash load_env_variables.sh
+cd airflow_celery_deployment_project/airflow
+chmod +x load_env_variables.sh
+./load_env_variables.sh
 ```
 
+### 4. Start Redis
 
-## Repository Structure
+On the Redis EC2 host:
+
+```bash
+cd airflow_celery_deployment_project/airflow
+docker compose up -d redis
+docker compose ps
 ```
-.
-├── airflow/                 # Airflow setup
-│   ├── dags/                # DAGs (pipelines)
-│   ├── docker-compose.yaml  # Airflow & backend services
-│   ├── Dockerfile           # Custom Airflow image
-│   └── load_env_variables.sh
-├── terraform/               # Terraform IaC for AWS
-│   ├── ec2.tf               # EC2 instances
-│   ├── iam.tf               # IAM roles & policies
-│   ├── rds.tf               # RDS PostgreSQL
-│   ├── vpc.tf               # VPC & subnets
-│   ├── ssm.tf               # SSM parameters
-│   └── s3.tf                # S3 bucket for logs
-└── README.md
+
+### 5. Start Airflow
+
+On the Airflow EC2 host:
+
+```bash
+cd airflow_celery_deployment_project/airflow
+docker compose up airflow-init
+docker compose up -d airflow-webserver airflow-scheduler airflow-worker airflow-triggerer
+docker compose ps
 ```
+
+## Verification
+
+The repository includes the manually triggered `three_python_sleep_tasks` DAG. It runs three sequential Python tasks and provides a simple check that the scheduler, Redis broker, Celery worker, and metadata database can communicate.
+
+1. Open the Airflow UI at `http://<airflow-ec2-address>:8081`.
+2. Enable and trigger `three_python_sleep_tasks`.
+3. Confirm that `sleep_1`, `sleep_2`, and `sleep_3` finish successfully.
+4. Confirm worker availability:
+
+```bash
+docker compose exec airflow-worker   celery --app airflow.providers.celery.executors.celery_executor.app inspect ping
+```
+
+5. Confirm service health:
+
+```bash
+docker compose ps
+```
+
+A portfolio screenshot should show the completed DAG Grid or Graph view with all three tasks in the successful state. A genuine runtime screenshot is intentionally not included until it can be captured from a verified deployment.
